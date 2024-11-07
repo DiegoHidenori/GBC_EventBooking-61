@@ -1,0 +1,35 @@
+version: '3.9'
+
+services:
+
+  BookingService:
+    image: booking-service
+    ports:
+      - "8085:8085"
+    build:
+      context: ./BookingService     # This is the directory
+      dockerfile: ./Dockerfile
+    container_name: booking-service
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - mongodb
+    networks:
+      - spring
+
+  mongodb:
+    image: mongo
+    container_name: booking-service
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+    volumes:
+      - ./data/mongo/bookings:/data/db
+      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+    command: mongod -auth
+    networks:
+      - spring
