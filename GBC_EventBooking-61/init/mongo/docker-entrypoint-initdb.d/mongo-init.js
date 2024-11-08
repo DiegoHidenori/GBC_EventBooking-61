@@ -10,6 +10,6 @@ db.createUser(
     }
 );
 
-db.createCollection('user')
+db.createCollection('user');
 
 print('END');

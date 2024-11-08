@@ -1,4 +1,7 @@
+# Instructions on constructing the Docker images, NOT THE CONTAINERS!!!
+#------------------
 # BUILD STAGE
+#------------------
 
 FROM gradle:8-jdk22-alpine AS builder
 
@@ -15,7 +18,7 @@ FROM openjdk:22-jdk
 
 RUN mkdir /app
 
-COPY --from=-builder /home/gradle/src/build/libs/*.jar /app/BookingService.jar
+COPY --from=builder /home/gradle/src/build/libs/*.jar /app/BookingService.jar
 
 ENV MONGO_DB_USERNAME=admin \
     MONGO_DB_PWD=password

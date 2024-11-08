@@ -1,35 +1,74 @@
+# ----------------------------------------------------
+
+# This command starts the containers in detached mode without rebuilding the images if they already exist
+# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d
+
+# This command rebuilds images even if they exist
+# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d --build
+
+# ----------------------------------------------------
+
+
 version: '3.9'
 
 services:
 
-  BookingService:
+  booking-service:
     image: booking-service
     ports:
       - "8085:8085"
     build:
-      context: ./BookingService     # This is the directory
-      dockerfile: ./Dockerfile
-    container_name: booking-service
+      context: ./BookingService     # This is the directory where the Dockerfile is located.
+      dockerfile: ./Dockerfile      # Decides which file to use for building the image.
+    container_name: booking-service   # Choose the name for the container.
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: docker  # This tells Spring Boot which profile to use. i.e., docker.
     depends_on:
-      - mongodb
+      - booking-service-mongodb
     networks:
       - spring
 
-  mongodb:
+  booking-service-mongodb:
     image: mongo
-    container_name: booking-service
+    container_name: booking-service-mongodb
     ports:
       - "27018:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=booking-service
 
     volumes:
-      - ./data/mongo/bookings:/data/db
-      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
-
-    command: mongod -auth
+      - "/c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/data/mongo/bookings:/data/db"
+      - "/c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js"
+#      - ./data/mongo/bookings:/data/db  # Database data gets saved in this location.
+#      - /c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+#      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+#    command: mongod -auth
     networks:
       - spring
+
+  mongo-express:
+    image: mongo-express
+    container_name: booking-service-express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=booking-service-mongodb
+    depends_on:
+      - booking-service-mongodb
+    networks:
+      - spring
+
+
+# Optional for persisting data
+volumes:
+  mongo-db:
+    driver: local
+
+
+networks:
+  spring:
+    driver: bridge
