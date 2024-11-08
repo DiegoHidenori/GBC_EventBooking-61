@@ -1,10 +1,13 @@
 # ----------------------------------------------------
-
+# SINGLE CREATION
 # This command starts the containers in detached mode without rebuilding the images if they already exist
-# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d
+# docker-compose -p room-service-single -f docker-compose-single.yml up -d
 
 # This command rebuilds images even if they exist
-# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d --build
+# docker-compose -p room-service-single -f docker-compose-single.yml up -d --build
+
+# This command stops and removes containers and volumes
+# docker-compose -p room-service-single -f docker-compose-single.yml down -v
 
 # ----------------------------------------------------
 
@@ -21,10 +24,9 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=room-service
 
     volumes:
-      - ./data/room:/data/db
+      - ./data/room:/var/lib/postgresql/data
       - ./init/room/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   room-service-pgadmin:
@@ -35,13 +37,6 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
-
-
-# Optional for persisting data
-volumes:
-  mongo-db:
-    driver: local
-
 
 networks:
   spring:

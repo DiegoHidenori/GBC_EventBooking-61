@@ -74,7 +74,7 @@ services:
       - POSTGRES_DB=room-service
 
     volumes:
-      - ./data/room:/data/db
+      - ./data/room:/var/lib/postgresql/data
       - ./init/room/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   room-service-pgadmin:
