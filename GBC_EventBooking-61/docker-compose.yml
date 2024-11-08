@@ -39,8 +39,8 @@ services:
       - MONGO_INITDB_DATABASE=booking-service
 
     volumes:
-      - "/c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/data/mongo/bookings:/data/db"
-      - "/c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js"
+      - ./data/booking:/data/db
+      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 #      - ./data/mongo/bookings:/data/db  # Database data gets saved in this location.
 #      - /c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 #      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
