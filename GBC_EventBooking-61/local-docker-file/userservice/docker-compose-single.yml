@@ -1,12 +1,18 @@
-# ----------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+# SINGLE CREATION
 
 # This command starts the containers in detached mode without rebuilding the images if they already exist
-# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d
+# docker-compose -p user-service-single -f docker-compose-single.yml up -d
 
 # This command rebuilds images even if they exist
-# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d --build
+# docker-compose -p user-service-single -f docker-compose-single.yml up -d --build
 
-# ----------------------------------------------------
+# This command stops and removes containers and volumes
+# docker-compose -p user-service-single -f docker-compose-single.yml down -v
+
+# DOCKER-COMPOSE FILE IS MEANT TO BE RUN ONCE
+
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 version: '3.9'
@@ -21,28 +27,21 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=user-service
+      - POSTGRES_DB=user-service  # Comment if creating the database in the init.sql file
 
     volumes:
-      - ./data/user:/data/db
-      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   user-service-pgadmin:
     image: dpage/pgadmin4
     container_name: user-service-pgadmin4-single
     ports:
-      - "8888:80"
+      - "8889:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
 
-
-# Optional for persisting data
-volumes:
-  mongo-db:
-    driver: local
-
-
-networks:
-  spring:
-    driver: bridge
+#networks:
+#  spring:
+#    driver: bridge

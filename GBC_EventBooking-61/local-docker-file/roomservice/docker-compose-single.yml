@@ -1,5 +1,6 @@
-# ----------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 # SINGLE CREATION
+
 # This command starts the containers in detached mode without rebuilding the images if they already exist
 # docker-compose -p room-service-single -f docker-compose-single.yml up -d
 
@@ -9,13 +10,17 @@
 # This command stops and removes containers and volumes
 # docker-compose -p room-service-single -f docker-compose-single.yml down -v
 
-# ----------------------------------------------------
-
+# ---------------------------------------------------------------------------------------------------------------------
 
 version: '3.9'
 
 services:
 
+
+  # when room-service-postgres is instantiated the first time,
+  # it looks for init scripts in the {docker-entrypoint-initdb.d} folder
+  # LEFT SIDE OF THE ":" IS THE HOST MACHINE. REAL WORLD.
+  # RIGHT SIDE OF THE ":" IS THE CONTAINER WORLD
   room-service-postgres:
     image: postgres
     container_name: room-service-postgres-single
@@ -24,6 +29,7 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=room-service  # Use when don't want to manually create the init.sql file?
 
     volumes:
       - ./data/room:/var/lib/postgresql/data
@@ -38,6 +44,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
 
-networks:
-  spring:
-    driver: bridge
+#networks:
+#  spring:
+#    driver: bridge
