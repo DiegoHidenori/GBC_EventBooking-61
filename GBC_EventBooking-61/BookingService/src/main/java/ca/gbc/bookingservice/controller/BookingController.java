@@ -18,11 +18,13 @@ import java.util.List;
 @RequestMapping("/api/booking")
 @RequiredArgsConstructor
 public class BookingController {
+
     private final BookingService bookingService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingRequest bookingRequest) {
+
         BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
 
         HttpHeaders headers = new HttpHeaders();
@@ -32,28 +34,36 @@ public class BookingController {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(createdBooking);
+
     }
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingResponse> getAllBookings() {
+
         return bookingService.getAllBookings();
+
     }
 
     @PutMapping("/{bookingId}")
 //    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<?> updateBooking(@PathVariable("bookingId") String bookingId,
                                            @RequestBody BookingRequest bookingRequest) {
+
         String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/booking" + updatedBookingId);
 
         return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+
     }
 
     @DeleteMapping("/{bookingId}")
     public ResponseEntity<?> deleteProduct(@PathVariable("bookingId") String bookingId) {
+
         bookingService.deleteBooking(bookingId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+
     }
+
 }

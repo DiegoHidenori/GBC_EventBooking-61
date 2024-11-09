@@ -21,10 +21,14 @@ public class BookingServiceImpl implements BookingService {
     private final BookingRepository bookingRepository;
     private final MongoTemplate mongoTemplate;
 
+
     @Override
     public BookingResponse createBooking(BookingRequest bookingRequest) {
-        //***************** Add proper log throughout the file...
+
+
+        // ADD PROPER LOGS THROUGHOUT THE FILE .........
         log.debug("Booking request: {}", bookingRequest.bookingId());
+
 
         Booking booking = Booking.builder()
                 .bookingId(bookingRequest.bookingId())
@@ -38,25 +42,38 @@ public class BookingServiceImpl implements BookingService {
         // Persist the product, used the @RequiredArgsConstructor to inject the BookingRepository
         bookingRepository.save(booking);
 
-        return new BookingResponse(booking.getBookingId(), booking.getUserId(), booking.getRoomId(),
-                booking.getStartTime(), booking.getEndTime(), booking.getPurpose());
+        return new BookingResponse(
+                booking.getBookingId(),
+                booking.getUserId(),
+                booking.getRoomId(),
+                booking.getStartTime(),
+                booking.getEndTime(),
+                booking.getPurpose()
+        );
+
     }
 
     @Override
     public List<BookingResponse> getAllBookings() {
+
         log.debug("Getting all bookings");
         List<Booking> bookings = bookingRepository.findAll();
+
 //        return bookings.stream().map(booking -> mapToBookingResponse(booking)).toList();
         return bookings.stream().map(this::mapToBookingResponse).toList(); // same as the one above
+
     }
 
     private BookingResponse mapToBookingResponse(Booking booking) {
+
         return new BookingResponse(booking.getBookingId(), booking.getUserId(), booking.getRoomId(),
                 booking.getStartTime(), booking.getEndTime(), booking.getPurpose());
+
     }
 
     @Override
     public String updateBooking(String bookingId, BookingRequest bookingRequest) {
+
         log.debug("Updating booking: {}", bookingId);
 
         Query query = new Query();
@@ -73,11 +90,14 @@ public class BookingServiceImpl implements BookingService {
         }
 
         return bookingId;
+
     }
 
     @Override
     public void deleteBooking(String bookingId) {
+
         log.debug("Deleting booking: {}", bookingId);
         bookingRepository.deleteById(bookingId);
+
     }
 }
