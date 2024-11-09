@@ -19,5 +19,4 @@ public class RoomController {
 //    @PostMapping
 //    @ResponseStatus(HttpStatus.CREATED)
     // Enter methods. Same as the RoomServiceImpl
-
 }
