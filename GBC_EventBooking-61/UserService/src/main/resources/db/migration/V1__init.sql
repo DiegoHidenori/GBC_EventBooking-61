@@ -1,14 +1,8 @@
-CREATE TABLE t_rooms (
-    id BIGSERIAL NOT NULL,
-    roomName VARCHAR(255) DEFAULT NULL,
-    capacity VARCHAR(255), -- change for integer, not string
-    features VARCHAR(255),
-    availability VARCHAR(255),
-    PRIMARY KEY (id)
+CREATE TABLE t_users (
+    userid BIGSERIAL NOT NULL,
+    name VARCHAR(255) DEFAULT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    role VARCHAR(50) DEFAULT NULL,
+    usertype VARCHAR(50) NOT NULL, -- i.e., Student, Staff, or Faculty
+    PRIMARY KEY (userid)
 );
-
--- Long id,
--- String roomName,
--- int capacity,
--- String features,
--- String availability

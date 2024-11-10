@@ -1,6 +1,5 @@
 package ca.gbc.roomservice.model;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 

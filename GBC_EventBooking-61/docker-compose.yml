@@ -117,34 +117,54 @@ services:
 
 
   # USER-SERVICE /////////////////////////
-#  user-service-postgres:
-#    image: postgres
-#    container_name: user-service-postgres
-#    ports:
-#      - "5434:5432"
-#    environment:
-#      - POSTGRES_USER=admin
-#      - POSTGRES_PASSWORD=password
-#      - POSTGRES_DB=user-service
-#
-#    volumes:
-#      - ./data/user:/var/lib/postgresql/db
-#      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
-#
-#    networks:
-#      - spring
-#
-#  user-service-pgadmin:
-#    image: dpage/pgadmin4
-#    container_name: user-service-pgadmin4
-#    ports:
-#      - "8889:80"
-#    environment:
-#      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
-#      - PGADMIN_DEFAULT_PASSWORD=password
-#
-#    networks:
-#      - spring
+  user-service:
+    image: user-service
+    container_name: user-service   # Choose the name for the container.
+    ports:
+      - "8087:8087"   # The internal port should match the exposed port in Dockerfile.
+    build:
+      context: ./UserService     # Docker compose will consider files within this directory.
+      dockerfile: ./Dockerfile      # The exact path to the Dockerfile in the directory above.
+    environment:
+      SPRING_PROFILES_ACTIVE: docker  # This tells Spring Boot to use "application-docker.properties" profile.
+    depends_on:
+      user-service-postgres:
+        condition: service_healthy
+    #      - room-service-postgres   # What will start before this service.
+    networks:
+      - spring
+
+  user-service-postgres:
+    image: postgres
+    container_name: user-service-postgres
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=password
+    #      - POSTGRES_DB=room-service
+    volumes:
+      - ./data/user:/var/lib/postgresql/data
+      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql # Executes at initialization.
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - spring
+
+  user-service-pgadmin:
+    image: dpage/pgadmin4
+    container_name: user-service-pgadmin4
+    ports:
+      - "8889:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
+      - PGADMIN_DEFAULT_PASSWORD=password
+
+    networks:
+      - spring
 
 # Optional for persisting data
 #volumes:
