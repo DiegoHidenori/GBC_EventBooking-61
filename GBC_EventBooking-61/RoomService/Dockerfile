@@ -18,11 +18,11 @@ FROM openjdk:22-jdk
 
 RUN mkdir /app
 
-COPY --from=builder /home/gradle/src/build/libs/*.jar /app/RoomService.jar
+COPY --from=builder /home/gradle/src/build/libs/*.jar /app/room-service.jar
 
 ENV POSTGRES_USER=admin \
     POSTGRES_PASSWORD=password
 
-EXPOSE 8082
+EXPOSE 8086
 
-ENTRYPOINT ["java", "-jar", "/app/RoomService.jar"]
+ENTRYPOINT ["java", "-jar", "/app/room-service.jar"]

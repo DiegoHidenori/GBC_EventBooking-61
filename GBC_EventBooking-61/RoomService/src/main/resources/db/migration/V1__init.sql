@@ -1,14 +1,18 @@
 CREATE TABLE t_rooms (
-    id BIGSERIAL NOT NULL,
+    roomId BIGSERIAL NOT NULL,
     roomName VARCHAR(255) DEFAULT NULL,
-    capacity VARCHAR(255), -- change for integer, not string
+    capacity INT DEFAULT NULL, -- change for integer, not string
     features VARCHAR(255),
-    availability VARCHAR(255),
-    PRIMARY KEY (id)
+    available BOOLEAN DEFAULT NULL,
+    PRIMARY KEY (roomId)
 );
 
--- Long id,
--- String roomName,
--- int capacity,
--- String features,
--- String availability
+
+-- @Id
+-- @GeneratedValue(strategy = GenerationType.IDENTITY)
+--     private Long roomId;
+--
+--     private String roomName;
+--     private int capacity;
+--     private String features;
+--     private boolean available;

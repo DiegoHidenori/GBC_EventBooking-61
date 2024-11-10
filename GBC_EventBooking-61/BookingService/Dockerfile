@@ -23,6 +23,9 @@ COPY --from=builder /home/gradle/src/build/libs/*.jar /app/BookingService.jar
 ENV MONGO_DB_USERNAME=admin \
     MONGO_DB_PWD=password
 
-EXPOSE 8086
+
+# Opens port in the container, making the app accessible on this port inside the Docker network.
+# Match the internal port shown on "docker-compose.yml".
+EXPOSE 8085
 
 ENTRYPOINT ["java", "-jar", "/app/BookingService.jar"]

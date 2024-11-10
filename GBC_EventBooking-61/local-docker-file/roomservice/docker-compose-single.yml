@@ -29,7 +29,7 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=room-service  # Use when don't want to manually create the init.sql file?
+#      - POSTGRES_DB=room-service  # Use when don't want to manually create the init.sql file?
 
     volumes:
       - ./data/room:/var/lib/postgresql/data

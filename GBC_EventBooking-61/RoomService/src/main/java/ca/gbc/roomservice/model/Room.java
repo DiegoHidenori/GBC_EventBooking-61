@@ -15,8 +15,10 @@ public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "roomid")
     private Long roomId;
 
+    @Column(name = "roomname")
     private String roomName;
     private int capacity;
     private String features;
