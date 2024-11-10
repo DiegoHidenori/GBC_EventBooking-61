@@ -1,4 +1,4 @@
-package com.example.approvalservice;
+package ca.gbc.approvalservice;
 
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
