@@ -46,11 +46,9 @@ public class RoomController {
     public ResponseEntity<?> updateRoom(@PathVariable("roomId") Long roomId,
                                         @RequestBody RoomRequest roomRequest) {
 
-        String updatedRoomId = roomService.updateRoom(roomId, roomRequest);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/room/" + updatedRoomId);
+        RoomResponse updatedRoom = roomService.updateRoom(roomId, roomRequest);
 
-        return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+        return ResponseEntity.ok(updatedRoom);
     }
 
     @GetMapping("/{roomId}/availability")

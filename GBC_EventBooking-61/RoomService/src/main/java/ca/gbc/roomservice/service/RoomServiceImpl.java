@@ -77,7 +77,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public String updateRoom(Long roomId, RoomRequest roomRequest) {
+    public RoomResponse updateRoom(Long roomId, RoomRequest roomRequest) {
         log.info("Attempting to update room with ID: {}", roomId);
         log.debug("Attempting to update room with ID: {}", roomId);
 
@@ -99,7 +99,7 @@ public class RoomServiceImpl implements RoomService {
         Room updatedRoom = roomRepository.save(room);
         log.info("Room with ID: {} updated successfully", updatedRoom.getRoomId());
 
-        return String.valueOf(updatedRoom);
+        return mapToRoomResponse(updatedRoom);
     }
 
     @Override
