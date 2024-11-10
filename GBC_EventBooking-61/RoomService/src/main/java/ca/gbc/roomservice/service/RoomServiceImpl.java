@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,7 +119,7 @@ public class RoomServiceImpl implements RoomService {
     }
 
     @Override
-    public boolean isRoomAvailable(Long roomId) {
+    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("Checking availability for room ID: {}", roomId);
 
         Optional<Room> optionalRoom = roomRepository.findById(roomId);

@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -52,8 +53,10 @@ public class RoomController {
     }
 
     @GetMapping("/{roomId}/availability")
-    public ResponseEntity<Boolean> checkRoomAvailability(@PathVariable Long roomId) {
-        boolean isAvailable = roomService.isRoomAvailable(roomId);
+    public ResponseEntity<Boolean> checkRoomAvailability(@PathVariable Long roomId,
+                                                         @RequestParam LocalDateTime startTime,
+                                                         @RequestParam LocalDateTime endTime) {
+        boolean isAvailable = roomService.isRoomAvailable(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
 
