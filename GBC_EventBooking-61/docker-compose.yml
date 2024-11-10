@@ -1,10 +1,14 @@
 # ----------------------------------------------------
+# COMPLETE MICROSERVICES CREATION
 
 # This command starts the containers in detached mode without rebuilding the images if they already exist
 # docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d
 
 # This command rebuilds images even if they exist
 # docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml up -d --build
+
+# This command stops and removes containers and volumes
+# docker-compose -p comp3095-lala-ecommerse -f docker-compose.yml down -v
 
 # ----------------------------------------------------
 
@@ -13,6 +17,8 @@ version: '3.9'
 
 services:
 
+
+  # BOOKING SERVICE ////////////////////
   booking-service:
     image: booking-service
     ports:
@@ -40,10 +46,7 @@ services:
 
     volumes:
       - ./data/booking:/data/db
-      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-#      - ./data/mongo/bookings:/data/db  # Database data gets saved in this location.
-#      - /c/Users/diego/GBC_EventBooking-61/GBC_EventBooking-61/init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-#      - ./init/mongo/docker-entrypoint-initdb.d/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
+      - ./init/booking/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
 #    command: mongod -auth
     networks:
       - spring
@@ -87,29 +90,29 @@ services:
       - PGADMIN_DEFAULT_PASSWORD=password
 
 
-  # USER-SERVICE /////////////////////////
-  user-service-postgres:
-    image: postgres
-    container_name: user-service-postgres
-    ports:
-      - "5434:5432"
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=user-service
-
-    volumes:
-      - ./data/user:/data/db
-      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  user-service-pgadmin:
-    image: dpage/pgadmin4
-    container_name: user-service-pgadmin4
-    ports:
-      - "8888:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
-      - PGADMIN_DEFAULT_PASSWORD=password
+#  # USER-SERVICE /////////////////////////
+#  user-service-postgres:
+#    image: postgres
+#    container_name: user-service-postgres
+#    ports:
+#      - "5434:5432"
+#    environment:
+#      - POSTGRES_USER=admin
+#      - POSTGRES_PASSWORD=password
+#      - POSTGRES_DB=user-service
+#
+#    volumes:
+#      - ./data/user:/var/lib/postgresql/db
+#      - ./init/user/init.sql:/docker-entrypoint-initdb.d/init.sql
+#
+#  user-service-pgadmin:
+#    image: dpage/pgadmin4
+#    container_name: user-service-pgadmin4
+#    ports:
+#      - "8889:80"
+#    environment:
+#      - PGADMIN_DEFAULT_EMAIL=user@domain.ca
+#      - PGADMIN_DEFAULT_PASSWORD=password
 
 # Optional for persisting data
 volumes:

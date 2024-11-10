@@ -15,11 +15,11 @@ public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long roomId;
 
     private String roomName;
     private int capacity;
     private String features;
-    private String availability;
+    private boolean available;
 
 }

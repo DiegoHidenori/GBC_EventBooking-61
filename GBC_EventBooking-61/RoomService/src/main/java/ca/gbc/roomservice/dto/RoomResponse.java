@@ -1,6 +1,6 @@
 package ca.gbc.roomservice.dto;
 
-public record RoomRequest(
+public record RoomResponse(
         Long roomId,
         String roomName,
         int capacity,

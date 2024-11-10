@@ -10,4 +10,5 @@ public interface BookingService {
     List<BookingResponse> getAllBookings();
     String updateBooking(String bookingId, BookingRequest bookingRequest);
     void deleteBooking(String bookingId);
+    boolean checkRoomAvailability(String bookingId);
 }
