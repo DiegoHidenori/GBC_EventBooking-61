@@ -2,7 +2,9 @@ package ca.gbc.bookingservice.service;
 
 import ca.gbc.bookingservice.dto.BookingRequest;
 import ca.gbc.bookingservice.dto.BookingResponse;
+import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingService {
@@ -10,5 +12,5 @@ public interface BookingService {
     List<BookingResponse> getAllBookings();
     String updateBooking(String bookingId, BookingRequest bookingRequest);
     void deleteBooking(String bookingId);
-    boolean checkRoomAvailability(String bookingId);
+    boolean isRoomAvailable(String bookingId, LocalDateTime startDate, LocalDateTime endDate);
 }

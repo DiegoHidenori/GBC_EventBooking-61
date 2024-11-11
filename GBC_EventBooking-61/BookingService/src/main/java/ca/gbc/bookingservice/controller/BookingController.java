@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -65,5 +66,16 @@ public class BookingController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 
     }
+
+    @GetMapping("/check-availability")
+    public ResponseEntity<Boolean> checkBookingAvailability(
+            @RequestParam String roomId,
+            @RequestParam LocalDateTime startTime,
+            @RequestParam LocalDateTime endTime) {
+
+        boolean isAvailable = bookingService.isRoomAvailable(roomId, startTime, endTime);
+        return ResponseEntity.ok(isAvailable);
+    }
+
 
 }

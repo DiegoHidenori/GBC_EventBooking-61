@@ -5,11 +5,13 @@ import ca.gbc.roomservice.dto.RoomRequest;
 import ca.gbc.roomservice.dto.RoomResponse;
 import ca.gbc.roomservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;

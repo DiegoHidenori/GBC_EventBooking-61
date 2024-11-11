@@ -6,6 +6,7 @@ import ca.gbc.bookingservice.model.Booking;
 import ca.gbc.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -22,8 +23,10 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final MongoTemplate mongoTemplate;
-    private final String ROOM_SERVICE_URL = "http://roomservice:8080/api/rooms";
     private final RestTemplate restTemplate;
+
+    @Value("http://room-service:8086/api/room")
+    private String ROOM_SERVICE_URL;
 
 
     @Override
@@ -32,10 +35,14 @@ public class BookingServiceImpl implements BookingService {
         log.info("Processing booking request: {}", bookingRequest);
         log.debug("Starting to process booking request with details: {}", bookingRequest);
 
+        if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
+            throw new IllegalArgumentException("Room is unavailable for the requested time range.");
+        }
+
         // Check for overlapping booking for the same room
         if (isRoomDoubleBooked(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
-            log.warn("Attempt to double book room ID: {} from {} to {}",
-                    bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime());
+//            log.warn("Attempt to double book room ID: {} from {} to {}",
+//                    bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime());
             throw new IllegalArgumentException("Room is already booked for the selected time range.");
         }
 
@@ -81,11 +88,11 @@ public class BookingServiceImpl implements BookingService {
         return isDoubleBooked;
     }
 
-    @Override
-    public boolean checkRoomAvailability(String roomId) {
-        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability";
-        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
-    }
+//    @Override
+//    public boolean checkRoomAvailability(String roomId) {
+//        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability";
+//        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
+//    }
 
     @Override
     public List<BookingResponse> getAllBookings() {
@@ -153,5 +160,10 @@ public class BookingServiceImpl implements BookingService {
         bookingRepository.deleteById(bookingId);
         log.info("Booking with ID: {} deleted successfully", bookingId);
 
+    }
+
+    public boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
+        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability?startTime=" + startTime + "&endTime=" + endTime;
+        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
     }
 }

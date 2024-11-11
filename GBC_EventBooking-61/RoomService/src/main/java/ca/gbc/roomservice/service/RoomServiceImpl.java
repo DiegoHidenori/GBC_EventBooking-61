@@ -6,8 +6,10 @@ import ca.gbc.roomservice.model.Room;
 import ca.gbc.roomservice.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -120,18 +122,13 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        log.info("Checking availability for room ID: {}", roomId);
-
         Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if (optionalRoom.isPresent()) {
-            boolean available = optionalRoom.get().isAvailable();
-            log.info("Room ID: {} availability status: {}", roomId, available);
-            return available;
-        } else {
-            log.warn("Room with ID {} not found for availability check", roomId);
+        if (optionalRoom.isEmpty()) {
             throw new IllegalArgumentException("Room not found");
         }
-    }
 
+        Room room = optionalRoom.get();
+        return room.isAvailable(); // Return the room's general availability status
+    }
 
 }
