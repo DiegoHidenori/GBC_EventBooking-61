@@ -1,9 +1,14 @@
-package com.example.approvalservice;
+package ca.gbc.approvalservice.controller;
 
+import ca.gbc.approvalservice.model.Approval;
+import ca.gbc.approvalservice.model.Event;
+import ca.gbc.approvalservice.repository.ApprovalRepository;
+import ca.gbc.approvalservice.client.UserServiceClient;
+import ca.gbc.approvalservice.client.EventServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +26,6 @@ public class ApprovalController {
     @Autowired
     private EventServiceClient eventServiceClient;
 
-    // Endpoint to approve an event
     @PutMapping("/approve/{eventId}")
     public ResponseEntity<String> approveEvent(@PathVariable String eventId, @RequestParam String staffId) {
         if (!userServiceClient.isStaff(staffId)) {
@@ -33,13 +37,11 @@ public class ApprovalController {
             return new ResponseEntity<>("Event not found", HttpStatus.NOT_FOUND);
         }
 
-        // Create and save the approval
         Approval approval = new Approval(eventId, staffId, true);
         approvalRepository.save(approval);
         return new ResponseEntity<>("Event approved successfully", HttpStatus.OK);
     }
 
-    // Endpoint to reject an event
     @PutMapping("/reject/{eventId}")
     public ResponseEntity<String> rejectEvent(@PathVariable String eventId, @RequestParam String staffId) {
         if (!userServiceClient.isStaff(staffId)) {
@@ -51,13 +53,11 @@ public class ApprovalController {
             return new ResponseEntity<>("Event not found", HttpStatus.NOT_FOUND);
         }
 
-        // Create and save the rejection
         Approval approval = new Approval(eventId, staffId, false);
         approvalRepository.save(approval);
         return new ResponseEntity<>("Event rejected successfully", HttpStatus.OK);
     }
 
-    // Endpoint to get all approvals
     @GetMapping
     public List<Approval> getAllApprovals() {
         return approvalRepository.findAll();

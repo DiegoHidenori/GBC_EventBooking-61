@@ -39,6 +39,9 @@ dependencies {
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:mongodb")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    implementation ("org.springframework.cloud:spring-cloud-starter-openfeign")
+
+
 }
 
 tasks.withType<Test> {
