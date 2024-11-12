@@ -50,7 +50,7 @@ services:
     networks:
       - spring
 
-  mongo-express:
+  booking-mongo-express:
     image: mongo-express
     container_name: booking-service-express
     ports:
@@ -64,7 +64,53 @@ services:
     networks:
       - spring
 
-  # ROOM-SERVICE ///////////////////////
+  # EVENT-SERVICE //////////////////
+  event-service:
+    image: event-service
+    ports:
+      - "8088:8088"   # The internal port should match the exposed port in Dockerfile.
+    build:
+      context: ./EventService     # Docker compose will consider files within this directory.
+      dockerfile: ./Dockerfile      # The exact path to the Dockerfile in the directory above.
+    container_name: event-service   # Choose the name for the container.
+    environment:
+      SPRING_PROFILES_ACTIVE: docker  # This tells Spring Boot to use "application-docker.properties" profile.
+    depends_on: # What will start before this service.
+      - event-service-mongodb
+    networks:
+      - spring
+
+  event-service-mongodb:
+    image: mongo
+    container_name: event-service-mongodb
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=event-service
+    volumes:
+      - ./data/event:/data/db   # Persists data on host machine even if container restarts.
+      - ./init/event/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js  # Initializes on first startup.
+    #    command: mongod -auth
+    networks:
+      - spring
+
+  event-mongo-express:
+    image: mongo-express
+    container_name: event-service-express
+    ports:
+      - "8082:8082"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=event-service-mongodb
+    depends_on: # What will start before this service.
+      - event-service-mongodb
+    networks:
+      - spring
+
+  # ROOM-SERVICE ///////////////////
   room-service:
     image: room-service
     container_name: room-service   # Choose the name for the container.

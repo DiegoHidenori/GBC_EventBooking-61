@@ -78,9 +78,8 @@ public class BookingServiceImpl implements BookingService {
         Query query = new Query();
         query.addCriteria(Criteria.where("roomId").is(roomId))
                 .addCriteria(new Criteria().orOperator(
-                        Criteria.where("startTime").lt(endTime).gt(startTime),  // Existing start within requested range
-                        Criteria.where("endTime").gt(startTime).lt(endTime),   // Existing end within requested range
-                        Criteria.where("startTime").lte(startTime).and("endTime").gte(endTime) // Existing covers requested range
+                        Criteria.where("startTime").lt(endTime).andOperator(Criteria.where("endTime").gt(startTime)),  // Overlaps with the requested range
+                        Criteria.where("startTime").lte(startTime).and("endTime").gte(endTime) // Existing booking completely covers requested range
                 ));
 
         boolean isDoubleBooked = mongoTemplate.exists(query, Booking.class);

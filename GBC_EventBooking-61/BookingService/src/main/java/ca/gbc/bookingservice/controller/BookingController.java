@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 // Extension of @Controller but for JSON?
@@ -24,17 +26,29 @@ public class BookingController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<BookingResponse> createBooking(@RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<?> createBooking(@RequestBody BookingRequest bookingRequest) {
 
-        BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
+        try {
+            BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/booking/" + createdBooking.bookingId());
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Location", "/api/booking/" + createdBooking.bookingId());
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .headers(headers)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(createdBooking);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(createdBooking);
+
+        } catch (IllegalArgumentException e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+
+        } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "An unexpected error occurred.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
 
     }
 
