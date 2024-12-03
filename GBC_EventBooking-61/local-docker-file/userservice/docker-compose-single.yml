@@ -42,6 +42,6 @@ services:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
 
-#networks:
-#  spring:
-#    driver: bridge
+networks:
+  spring:
+    driver: bridge

@@ -3,6 +3,7 @@ package ca.gbc.userservice.service;
 import ca.gbc.userservice.dto.UserRequest;
 import ca.gbc.userservice.dto.UserResponse;
 import ca.gbc.userservice.model.User;
+import ca.gbc.userservice.model.UserType;
 import ca.gbc.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse createUser(UserRequest userRequest) {
         log.info("Processing user creation request: {}", userRequest);
+
+        if (userRequest.userType() == null) throw new IllegalArgumentException("User type can't be null");
+
+        if (!UserType.isValidType(userRequest.userType())) {
+            throw new IllegalArgumentException("Invalid user type: " + userRequest.userType());
+        }
 
         User user = User.builder()
                 .userId(userRequest.userId())
