@@ -3,6 +3,7 @@ package ca.gbc.roomservice.controller;
 
 import ca.gbc.roomservice.dto.RoomRequest;
 import ca.gbc.roomservice.dto.RoomResponse;
+import ca.gbc.roomservice.repository.RoomRepository;
 import ca.gbc.roomservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -58,6 +59,8 @@ public class RoomController {
     public ResponseEntity<Boolean> checkRoomAvailability(@PathVariable Long roomId,
                                                          @RequestParam LocalDateTime startTime,
                                                          @RequestParam LocalDateTime endTime) {
+        LocalDateTime start = startTime;
+        LocalDateTime end = endTime;
         boolean isAvailable = roomService.isRoomAvailable(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
@@ -66,6 +69,12 @@ public class RoomController {
     public ResponseEntity<?> deleteRoom(@PathVariable("roomId") Long roomId) {
         roomService.deleteRoom(roomId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{roomId}")
+    public ResponseEntity<RoomResponse> getRoomById(@PathVariable Long roomId) {
+        RoomResponse roomResponse = roomService.getRoomById(roomId);
+        return ResponseEntity.ok(roomResponse);
     }
 
 }

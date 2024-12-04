@@ -32,8 +32,15 @@ services:
 #      - POSTGRES_DB=room-service  # Use when don't want to manually create the init.sql file?
 
     volumes:
-      - ./data/room:/var/lib/postgresql/data
-      - ./init/room/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - spring
 
   room-service-pgadmin:
     image: dpage/pgadmin4
@@ -43,7 +50,9 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.ca
       - PGADMIN_DEFAULT_PASSWORD=password
+    networks:
+      - spring
 
-#networks:
-#  spring:
-#    driver: bridge
+networks:
+  spring:
+    driver: bridge

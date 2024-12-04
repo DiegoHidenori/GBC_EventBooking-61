@@ -1,10 +1,9 @@
 CREATE TABLE t_rooms (
-    roomId BIGSERIAL NOT NULL,
-    roomName VARCHAR(255) DEFAULT NULL,
-    capacity INT DEFAULT NULL, -- change for integer, not string
+    roomId BIGSERIAL PRIMARY KEY,
+    roomName VARCHAR(255) NOT NULL,
+    capacity INT NOT NULL, -- change for integer, not string
     features VARCHAR(255),
-    available BOOLEAN DEFAULT NULL,
-    PRIMARY KEY (roomId)
+    available BOOLEAN NOT NULL
 );
 
 

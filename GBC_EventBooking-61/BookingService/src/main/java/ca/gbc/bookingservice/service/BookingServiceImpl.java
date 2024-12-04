@@ -1,5 +1,7 @@
 package ca.gbc.bookingservice.service;
 
+import ca.gbc.bookingservice.client.RoomClient;
+import ca.gbc.bookingservice.client.UserClient;
 import ca.gbc.bookingservice.dto.BookingRequest;
 import ca.gbc.bookingservice.dto.BookingResponse;
 import ca.gbc.bookingservice.model.Booking;
@@ -11,22 +13,24 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final MongoTemplate mongoTemplate;
     private final RestTemplate restTemplate;
-
-    @Value("http://room-service:8086/api/room")
-    private String ROOM_SERVICE_URL;
+    private final UserClient userClient;
+    private final RoomClient roomClient;
 
 
     @Override
@@ -35,15 +39,33 @@ public class BookingServiceImpl implements BookingService {
         log.info("Processing booking request: {}", bookingRequest);
         log.debug("Starting to process booking request with details: {}", bookingRequest);
 
-        if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
-            throw new IllegalArgumentException("Room is unavailable for the requested time range.");
+        Long userId = bookingRequest.userId();
+        Long roomId = bookingRequest.roomId();
+
+//        if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
+//            throw new IllegalArgumentException("Room is unavailable for the requested time range.");
+//        }
+        // Check if Room exists
+        if (!roomClient.roomExists(roomId)) {
+            throw new RuntimeException("Room with ID " + roomId + " does not exist");
         }
 
-        // Check for overlapping booking for the same room
+        // Check if User exists
+        if (!userClient.userExists(userId)) {
+            throw new RuntimeException("User with ID " + userId + " does not exist");
+        }
+
         if (isRoomDoubleBooked(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
 //            log.warn("Attempt to double book room ID: {} from {} to {}",
 //                    bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime());
             throw new IllegalArgumentException("Room is already booked for the selected time range.");
+        }
+
+        // Check Room Availability
+        String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
+            throw new RuntimeException("Room is not available during the requested time.");
         }
 
 
@@ -61,18 +83,11 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Booking created successfully with ID: {}", booking.getBookingId());
 
-        return new BookingResponse(
-                booking.getBookingId(),
-                booking.getUserId(),
-                booking.getRoomId(),
-                booking.getStartTime(),
-                booking.getEndTime(),
-                booking.getPurpose()
-        );
+        return mapToBookingResponse(booking);
 
     }
 
-    private boolean isRoomDoubleBooked(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
+    private boolean isRoomDoubleBooked(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
         log.debug("Checking for existing bookings for room ID: {} from {} to {}", roomId, startTime, endTime);
 
         Query query = new Query();
@@ -87,18 +102,11 @@ public class BookingServiceImpl implements BookingService {
         return isDoubleBooked;
     }
 
-//    @Override
-//    public boolean checkRoomAvailability(String roomId) {
-//        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability";
-//        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
-//    }
 
     @Override
     public List<BookingResponse> getAllBookings() {
 
         log.info("Retrieving all bookings");
-        log.debug("Fetching all bookings from the database");
-
         List<Booking> bookings = bookingRepository.findAll();
         log.info("Total bookings retrieved: {}", bookings.size());
 
@@ -126,7 +134,6 @@ public class BookingServiceImpl implements BookingService {
     public String updateBooking(String bookingId, BookingRequest bookingRequest) {
 
         log.info("Attempting to update booking with ID: {}", bookingId);
-        log.debug("Attempting to update booking with ID: {}", bookingId);
 
         Query query = new Query();
         query.addCriteria(Criteria.where("bookingId").is(bookingId));
@@ -154,15 +161,20 @@ public class BookingServiceImpl implements BookingService {
     public void deleteBooking(String bookingId) {
 
         log.info("Attempting to delete booking with ID: {}", bookingId);
-        log.debug("Attempting to delete booking with ID: {}", bookingId);
-
         bookingRepository.deleteById(bookingId);
         log.info("Booking with ID: {} deleted successfully", bookingId);
 
     }
 
-    public boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability?startTime=" + startTime + "&endTime=" + endTime;
-        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
+    @Override
+    public boolean checkRoomAvailability(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
+        String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        return roomClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
     }
+
+//    public boolean isRoomAvailable(String roomId, LocalDateTime startTime, LocalDateTime endTime) {
+//        String url = ROOM_SERVICE_URL + "/" + roomId + "/availability?startTime=" + startTime + "&endTime=" + endTime;
+//        return Boolean.TRUE.equals(restTemplate.getForObject(url, Boolean.class));
+//    }
 }

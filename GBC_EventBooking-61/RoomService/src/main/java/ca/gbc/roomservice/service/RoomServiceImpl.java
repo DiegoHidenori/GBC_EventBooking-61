@@ -1,7 +1,9 @@
 package ca.gbc.roomservice.service;
 
+import ca.gbc.roomservice.client.BookingClient;
 import ca.gbc.roomservice.dto.RoomRequest;
 import ca.gbc.roomservice.dto.RoomResponse;
+import ca.gbc.roomservice.exception.ResourceNotFoundException;
 import ca.gbc.roomservice.model.Room;
 import ca.gbc.roomservice.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
+    private final BookingClient bookingClient;
 
     @Override
     public RoomResponse createRoom(RoomRequest roomRequest) {
@@ -110,25 +114,27 @@ public class RoomServiceImpl implements RoomService {
         log.info("Attempting to delete room with ID: {}", roomId);
         log.debug("Attempting to delete room with ID: {}", roomId);
 
-        if (roomRepository.existsById(roomId)) {
-            roomRepository.deleteById(roomId);
-            log.info("Room with ID: {} deleted successfully", roomId);
-        } else {
+        if (!roomRepository.existsById(roomId)) {
             log.warn("Room with ID {} not found for deletion", roomId);
-            throw new IllegalArgumentException("Room not found");
+            throw new ResourceNotFoundException("Room not found with ID: " + roomId);
         }
+        log.info("Room with ID: {} deleted successfully", roomId);
+        roomRepository.deleteById(roomId);
 
     }
 
     @Override
     public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        Optional<Room> optionalRoom = roomRepository.findById(roomId);
-        if (optionalRoom.isEmpty()) {
-            throw new IllegalArgumentException("Room not found");
-        }
+        String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        return bookingClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
+    }
 
-        Room room = optionalRoom.get();
-        return room.isAvailable(); // Return the room's general availability status
+    @Override
+    public RoomResponse getRoomById(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + roomId));
+        return mapToRoomResponse(room);
     }
 
 }

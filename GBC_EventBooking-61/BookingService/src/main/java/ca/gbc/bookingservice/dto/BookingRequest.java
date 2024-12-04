@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 public record BookingRequest(
 
         String bookingId,
-        String userId,
-        String roomId,
+        Long userId,
+        Long roomId,
         LocalDateTime startTime,
         LocalDateTime endTime,
         String purpose

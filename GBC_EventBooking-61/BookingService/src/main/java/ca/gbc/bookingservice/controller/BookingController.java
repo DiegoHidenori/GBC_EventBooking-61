@@ -4,6 +4,7 @@ import ca.gbc.bookingservice.dto.BookingRequest;
 import ca.gbc.bookingservice.dto.BookingResponse;
 import ca.gbc.bookingservice.service.BookingService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 
 // Extension of @Controller but for JSON?
+@Slf4j
 @RestController
 @RequestMapping("/api/booking")
 @RequiredArgsConstructor
@@ -83,11 +85,11 @@ public class BookingController {
 
     @GetMapping("/check-availability")
     public ResponseEntity<Boolean> checkBookingAvailability(
-            @RequestParam String roomId,
+            @RequestParam Long roomId,
             @RequestParam LocalDateTime startTime,
             @RequestParam LocalDateTime endTime) {
 
-        boolean isAvailable = bookingService.isRoomAvailable(roomId, startTime, endTime);
+        boolean isAvailable = bookingService.checkRoomAvailability(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
 

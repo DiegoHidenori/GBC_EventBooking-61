@@ -19,8 +19,8 @@ public class Booking {
     @Id
     private String bookingId;
 
-    private String userId;
-    private String roomId;
+    private Long userId;
+    private Long roomId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String purpose;
