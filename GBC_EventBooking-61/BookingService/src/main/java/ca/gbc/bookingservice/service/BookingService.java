@@ -12,5 +12,6 @@ public interface BookingService {
     List<BookingResponse> getAllBookings();
     String updateBooking(String bookingId, BookingRequest bookingRequest);
     void deleteBooking(String bookingId);
-    boolean checkRoomAvailability(Long roomId, LocalDateTime startDate, LocalDateTime endDate);
+//    boolean checkRoomAvailability(Long roomId, LocalDateTime startDate, LocalDateTime endDate);
+    boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
 }

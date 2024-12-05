@@ -5,7 +5,7 @@ import org.springframework.web.service.annotation.GetExchange;
 
 public interface UserClient {
 
-    @GetExchange("/api/users/{userId}")
+    @GetExchange("/api/user/{userId}/exists")
     boolean userExists(@PathVariable Long userId);
 
 }

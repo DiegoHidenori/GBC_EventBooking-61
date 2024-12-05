@@ -6,6 +6,7 @@ import ca.gbc.roomservice.dto.RoomResponse;
 import ca.gbc.roomservice.repository.RoomRepository;
 import ca.gbc.roomservice.service.RoomService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/room")
 @RequiredArgsConstructor
@@ -55,15 +57,29 @@ public class RoomController {
         return ResponseEntity.ok(updatedRoom);
     }
 
+//    @GetMapping("/{roomId}/availability")
+//    public ResponseEntity<Boolean> checkRoomAvailability(@PathVariable Long roomId,
+//                                                         @RequestParam LocalDateTime startTime,
+//                                                         @RequestParam LocalDateTime endTime) {
+//        // Validate input
+//        if (startTime.isAfter(endTime)) {
+//            log.warn("Invalid time range: startTime {} is after endTime {}", startTime, endTime);
+//            return ResponseEntity.badRequest().body(false);
+//        }
+//
+//        boolean isAvailable = roomService.isRoomAvailable(roomId, startTime, endTime);
+//        return ResponseEntity.ok(isAvailable);
+//    }
     @GetMapping("/{roomId}/availability")
-    public ResponseEntity<Boolean> checkRoomAvailability(@PathVariable Long roomId,
-                                                         @RequestParam LocalDateTime startTime,
-                                                         @RequestParam LocalDateTime endTime) {
-        LocalDateTime start = startTime;
-        LocalDateTime end = endTime;
+    public ResponseEntity<Boolean> checkRoomAvailability(
+            @PathVariable Long roomId,
+            @RequestParam LocalDateTime startTime,
+            @RequestParam LocalDateTime endTime) {
+
         boolean isAvailable = roomService.isRoomAvailable(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
+
 
     @DeleteMapping("/{roomId}")
     public ResponseEntity<?> deleteRoom(@PathVariable("roomId") Long roomId) {
@@ -76,5 +92,12 @@ public class RoomController {
         RoomResponse roomResponse = roomService.getRoomById(roomId);
         return ResponseEntity.ok(roomResponse);
     }
+
+    @GetMapping("/{roomId}/exists")
+    public ResponseEntity<Boolean> roomExists(@PathVariable Long roomId) {
+        boolean exists = roomService.doesRoomExist(roomId);
+        return ResponseEntity.ok(exists);
+    }
+
 
 }

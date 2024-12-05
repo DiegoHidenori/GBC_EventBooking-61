@@ -30,28 +30,15 @@ public class BookingController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<?> createBooking(@RequestBody BookingRequest bookingRequest) {
 
-        try {
-            BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
+        log.info("Received booking request: {}", bookingRequest);
+        BookingResponse createdBooking = bookingService.createBooking(bookingRequest);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", "/api/booking/" + createdBooking.bookingId());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", "/api/booking/" + createdBooking.bookingId());
 
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .headers(headers)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(createdBooking);
-
-        } catch (IllegalArgumentException e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
-
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "An unexpected error occurred.");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
-
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .headers(headers)
+                .body(createdBooking);
     }
 
     @GetMapping
@@ -63,35 +50,37 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}")
-//    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<?> updateBooking(@PathVariable("bookingId") String bookingId,
-                                           @RequestBody BookingRequest bookingRequest) {
+    public ResponseEntity<?> updateBooking(
+            @PathVariable String bookingId,
+            @RequestBody BookingRequest bookingRequest) {
 
         String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/booking" + updatedBookingId);
+        headers.add("Location", "/api/booking/" + updatedBookingId);
 
-        return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
-
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .headers(headers)
+                .build();
     }
 
     @DeleteMapping("/{bookingId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable("bookingId") String bookingId) {
+    public ResponseEntity<?> deleteBooking(@PathVariable String bookingId) {
 
         bookingService.deleteBooking(bookingId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
 
     @GetMapping("/check-availability")
-    public ResponseEntity<Boolean> checkBookingAvailability(
+    public ResponseEntity<Boolean> checkRoomAvailability(
             @RequestParam Long roomId,
             @RequestParam LocalDateTime startTime,
             @RequestParam LocalDateTime endTime) {
 
-        boolean isAvailable = bookingService.checkRoomAvailability(roomId, startTime, endTime);
+        log.info("Received request to check room availability for room ID: {}, from {} to {}",
+                roomId, startTime, endTime);
+
+        boolean isAvailable = bookingService.isRoomAvailable(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
-
-
 }

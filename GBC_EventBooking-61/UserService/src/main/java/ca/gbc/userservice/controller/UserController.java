@@ -52,6 +52,18 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/id/{userId}")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable("userId") Long userId) {
+        UserResponse user = userService.getUserById(userId);
+        return ResponseEntity.ok(user);
+    }
+
+    @GetMapping("/{userId}/exists")
+    public ResponseEntity<Boolean> userExists(@PathVariable Long userId) {
+        boolean exists = userService.doesUserExist(userId);
+        return ResponseEntity.ok(exists);
+    }
+
     @DeleteMapping("/{email}")
     public ResponseEntity<String> deleteUser(@PathVariable("email") String email) {
         userService.deleteUser(email);

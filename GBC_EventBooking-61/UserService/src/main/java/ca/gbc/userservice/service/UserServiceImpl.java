@@ -117,4 +117,19 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public UserResponse getUserById(Long userId) {
+        log.info("Retrieving user with ID: {}", userId);
+
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+        return mapToUserResponse(user);
+    }
+
+    @Override
+    public boolean doesUserExist(Long userId) {
+        log.info("Retrieving user with ID: {}", userId);
+        return userRepository.existsById(userId);
+    }
+
 }

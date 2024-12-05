@@ -6,8 +6,8 @@ import org.springframework.web.service.annotation.GetExchange;
 
 public interface RoomClient {
 
-    @GetExchange("/api/room")
-    boolean roomExists(@RequestParam Long roomId);
+    @GetExchange("/api/room/{roomId}/exists")
+    boolean roomExists(@PathVariable Long roomId);
 
     @GetExchange("/api/room/{roomId}/availability")
     boolean isRoomAvailable(@PathVariable Long roomId,

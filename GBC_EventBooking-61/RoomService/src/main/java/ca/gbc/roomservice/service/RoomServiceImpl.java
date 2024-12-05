@@ -9,6 +9,7 @@ import ca.gbc.roomservice.repository.RoomRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -123,12 +124,50 @@ public class RoomServiceImpl implements RoomService {
 
     }
 
+//    @Override
+//    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
+//        try {
+//            String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//            String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//            return bookingClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
+//        } catch (Exception e) {
+//            log.error("Failed to connect to BookingService: {}", e.getMessage());
+//            return false;
+//        }
+//
+//    }
     @Override
     public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        return bookingClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
+        // Validate input times
+        if (startTime.isAfter(endTime)) {
+            log.warn("Invalid time range: startTime {} is after endTime {}", startTime, endTime);
+            throw new IllegalArgumentException("Start time cannot be after end time");
+        }
+
+        // Check if the room exists
+        if (!doesRoomExist(roomId)) {
+            log.error("Room with ID {} does not exist", roomId);
+            throw new IllegalArgumentException("Invalid Room ID: Room does not exist");
+        }
+
+        try {
+            log.info("Checking room availability with BookingService for room ID: {}", roomId);
+
+            String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+            // Use BookingClient to call BookingService
+            boolean isAvailable = bookingClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
+
+            log.info("Room availability for ID {}: {}", roomId, isAvailable);
+            return isAvailable;
+
+        } catch (Exception e) {
+            log.error("Failed to connect to BookingService: {}", e.getMessage());
+            return false; // Default to unavailable if BookingService fails
+        }
     }
+
 
     @Override
     public RoomResponse getRoomById(Long roomId) {
@@ -136,5 +175,11 @@ public class RoomServiceImpl implements RoomService {
                 .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + roomId));
         return mapToRoomResponse(room);
     }
+
+    @Override
+    public boolean doesRoomExist(Long roomId) {
+        return roomRepository.existsById(roomId);
+    }
+
 
 }

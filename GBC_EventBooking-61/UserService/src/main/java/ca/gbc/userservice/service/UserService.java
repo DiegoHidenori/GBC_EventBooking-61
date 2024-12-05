@@ -12,5 +12,7 @@ public interface UserService {
     UserResponse updateUser(String email, UserRequest userRequest);
     void deleteUser(String email);
     UserResponse getUser(String email);
+    UserResponse getUserById(Long userId);
+    boolean doesUserExist(Long userId);
 
 }

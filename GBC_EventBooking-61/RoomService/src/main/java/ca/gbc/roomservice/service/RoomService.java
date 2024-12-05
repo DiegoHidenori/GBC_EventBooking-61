@@ -14,5 +14,6 @@ public interface RoomService {
     void deleteRoom(Long roomId);
     boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
     RoomResponse getRoomById(Long roomId);
+    boolean doesRoomExist(Long roomId);
 
 }
