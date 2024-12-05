@@ -14,5 +14,6 @@ public interface UserService {
     UserResponse getUser(String email);
     UserResponse getUserById(Long userId);
     boolean doesUserExist(Long userId);
+    String getUserType(Long userId);
 
 }

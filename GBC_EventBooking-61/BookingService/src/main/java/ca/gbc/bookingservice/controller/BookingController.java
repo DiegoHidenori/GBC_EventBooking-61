@@ -63,6 +63,12 @@ public class BookingController {
                 .build();
     }
 
+    @GetMapping("/{bookingId}/exists")
+    public ResponseEntity<Boolean> bookingExists(@PathVariable String bookingId) {
+        boolean exists = bookingService.doesBookingExist(bookingId);
+        return ResponseEntity.ok(exists);
+    }
+
     @DeleteMapping("/{bookingId}")
     public ResponseEntity<?> deleteBooking(@PathVariable String bookingId) {
 

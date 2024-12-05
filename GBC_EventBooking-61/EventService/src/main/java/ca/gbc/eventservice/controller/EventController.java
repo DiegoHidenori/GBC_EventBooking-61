@@ -4,6 +4,7 @@ import ca.gbc.eventservice.dto.EventRequest;
 import ca.gbc.eventservice.dto.EventResponse;
 import ca.gbc.eventservice.service.EventService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/event")
 @RequiredArgsConstructor
+@Slf4j
 public class EventController {
 
     private final EventService eventService;
@@ -25,7 +27,6 @@ public class EventController {
     public ResponseEntity<EventResponse> createEvent(@RequestBody EventRequest eventRequest) {
 
         EventResponse createdEvent = eventService.createEvent(eventRequest);
-
         HttpHeaders headers = new HttpHeaders();
         headers.add("Location", "/api/event/" + createdEvent.eventId());
 

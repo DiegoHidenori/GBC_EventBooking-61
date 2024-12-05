@@ -1,9 +1,9 @@
 package ca.gbc.eventservice.dto;
 
 public record EventRequest(
-        String eventId,
         String eventName,
-        String organizerId,
+        Long organizerId,
         String eventType,
-        int expectedAttendees
+        int expectedAttendees,
+        String bookingId
 ) {}

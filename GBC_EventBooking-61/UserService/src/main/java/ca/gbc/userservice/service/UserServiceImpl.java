@@ -132,4 +132,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.existsById(userId);
     }
 
+    @Override
+    public String getUserType(Long userId) {
+        log.info("Retrieving user with ID: {}", userId);
+
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
+        return user.getUserType();
+
+    }
+
 }

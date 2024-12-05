@@ -64,6 +64,12 @@ public class UserController {
         return ResponseEntity.ok(exists);
     }
 
+    @GetMapping("/{userId}/type")
+    public ResponseEntity<String> getUserType(@PathVariable Long userId) {
+        String type = userService.getUserType(userId);
+        return ResponseEntity.ok(type);
+    }
+
     @DeleteMapping("/{email}")
     public ResponseEntity<String> deleteUser(@PathVariable("email") String email) {
         userService.deleteUser(email);

@@ -14,4 +14,5 @@ public interface BookingService {
     void deleteBooking(String bookingId);
 //    boolean checkRoomAvailability(Long roomId, LocalDateTime startDate, LocalDateTime endDate);
     boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
+    boolean doesBookingExist(String bookingId);
 }

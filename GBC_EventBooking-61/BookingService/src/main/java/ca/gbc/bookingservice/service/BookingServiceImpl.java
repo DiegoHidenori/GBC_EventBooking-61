@@ -135,6 +135,35 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Attempting to update booking with ID: {}", bookingId);
 
+        Long userId = bookingRequest.userId();
+        Long roomId = bookingRequest.roomId();
+
+        log.info("Checking room with ID: {} exists.", roomId);
+        if (!roomClient.roomExists(roomId)) {
+            log.error("Room with ID {} does not exist", roomId);
+            throw new IllegalArgumentException("Room with ID " + roomId + " does not exist");
+        }
+
+        log.info("Checking user with ID: {} exists.", userId);
+        if (!userClient.userExists(userId)) {
+            log.error("User with ID {} does not exist", userId);
+            throw new UserNotFoundException("User with ID " + userId + " does not exist");
+        }
+
+        log.info("Checking for overlapping bookings for room ID: {}", roomId);
+        if (isRoomDoubleBooked(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
+            log.error("Room is already booked for the selected time range.");
+            throw new RoomNotAvailableException("Room is already booked for the selected time range.");
+        }
+
+        log.info("Checking room availability for booking request: {}", bookingRequest);
+        String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
+            log.error("Room with ID {} is not available between {} and {}", roomId, startTime, endTime);
+            throw new RuntimeException("Room is not available during the requested time.");
+        }
+
         Query query = new Query();
         query.addCriteria(Criteria.where("bookingId").is(bookingId));
         Booking booking = mongoTemplate.findOne(query, Booking.class);
@@ -155,6 +184,12 @@ public class BookingServiceImpl implements BookingService {
 
         return updatedBookingId;
 
+    }
+
+    @Override
+    public boolean doesBookingExist(String bookingId) {
+        log.info("Checking if booking exists with ID: {}", bookingId);
+        return bookingRepository.existsById(bookingId);
     }
 
     @Override
