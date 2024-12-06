@@ -1,6 +1,7 @@
 package ca.gbc.roomservice.controller;
 
 
+import ca.gbc.roomservice.client.BookingClient;
 import ca.gbc.roomservice.dto.RoomRequest;
 import ca.gbc.roomservice.dto.RoomResponse;
 import ca.gbc.roomservice.repository.RoomRepository;
@@ -25,6 +26,7 @@ import java.util.List;
 public class RoomController {
 
     private final RoomService roomService;
+    private final BookingClient bookingClient;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -76,7 +78,9 @@ public class RoomController {
             @RequestParam LocalDateTime startTime,
             @RequestParam LocalDateTime endTime) {
 
-        boolean isAvailable = roomService.isRoomAvailable(roomId, startTime, endTime);
+//        boolean isAvailable = bookingClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
+
+        boolean isAvailable = bookingClient.isRoomAvailable(roomId, startTime, endTime);
         return ResponseEntity.ok(isAvailable);
     }
 

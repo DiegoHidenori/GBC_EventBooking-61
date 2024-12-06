@@ -10,6 +10,5 @@ db.createUser(
     }
 );
 
-db.createCollection('event');
 
 print('END');

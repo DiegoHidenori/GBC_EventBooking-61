@@ -12,7 +12,7 @@ public interface RoomService {
     List<RoomResponse> getAllRooms();
     RoomResponse updateRoom(Long roomId, RoomRequest roomRequest);
     void deleteRoom(Long roomId);
-    boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
+//    boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime);
     RoomResponse getRoomById(Long roomId);
     boolean doesRoomExist(Long roomId);
 

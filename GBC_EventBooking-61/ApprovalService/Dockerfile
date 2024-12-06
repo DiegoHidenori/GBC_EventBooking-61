@@ -18,11 +18,14 @@ FROM openjdk:22-jdk
 
 RUN mkdir /app
 
-COPY --from=builder /home/gradle/src/build/libs/*.jar /app/room-service.jar
+COPY --from=builder /home/gradle/src/build/libs/*.jar /app/approval-service.jar
 
-ENV POSTGRES_USER=admin \
-    POSTGRES_PASSWORD=password
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=password
 
-EXPOSE 8086
 
-ENTRYPOINT ["java", "-jar", "/app/room-service.jar"]
+# Opens port in the container, making the app accessible on this port inside the Docker network.
+# Match the internal port shown on "docker-compose.yml".
+EXPOSE 8083
+
+ENTRYPOINT ["java", "-jar", "/app/approval-service.jar"]

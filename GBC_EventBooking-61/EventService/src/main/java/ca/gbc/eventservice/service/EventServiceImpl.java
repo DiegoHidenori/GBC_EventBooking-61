@@ -171,6 +171,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public boolean doesEventExist(String eventId) {
+        log.info("Checking if event exists with ID: {}", eventId);
+        return eventRepository.existsById(eventId);
+    }
+
+    @Override
     public void deleteEvent(String eventId) {
 
         log.info("Attempting to delete event with ID: {}", eventId);

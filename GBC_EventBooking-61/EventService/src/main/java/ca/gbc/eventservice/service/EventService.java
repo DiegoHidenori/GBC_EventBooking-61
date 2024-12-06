@@ -11,4 +11,5 @@ public interface EventService {
     List<EventResponse> getAllEvents();
     EventResponse updateEvent(String eventId, EventRequest eventRequest);
     void deleteEvent(String eventId);
+    boolean doesEventExist(String eventId);
 }

@@ -55,18 +55,18 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotFoundException("User with ID " + userId + " does not exist");
         }
 
-        log.info("Checking for overlapping bookings for room ID: {}", roomId);
-        if (isRoomDoubleBooked(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
-            log.error("Room is already booked for the selected time range.");
-            throw new RoomNotAvailableException("Room is already booked for the selected time range.");
-        }
+//        log.info("Checking for overlapping bookings for room ID: {}", roomId);
+//        if (isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime(), null)) {
+//            log.error("Room is already booked for the selected time range.");
+//            throw new RoomNotAvailableException("Room is already booked for the selected time range.");
+//        }
 
         log.info("Checking room availability for booking request: {}", bookingRequest);
         String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
             log.error("Room with ID {} is not available between {} and {}", roomId, startTime, endTime);
-            throw new RuntimeException("Room is not available during the requested time.");
+            throw new RoomNotAvailableException("Room is not available during the requested time.");
         }
 
         log.info("Creating booking entity");
@@ -85,21 +85,6 @@ public class BookingServiceImpl implements BookingService {
 
         log.info("Booking created successfully with ID: {}", booking.getBookingId());
         return mapToBookingResponse(booking);
-    }
-
-    private boolean isRoomDoubleBooked(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        log.debug("Checking for existing bookings for room ID: {} from {} to {}", roomId, startTime, endTime);
-
-        Query query = new Query();
-        query.addCriteria(Criteria.where("roomId").is(roomId))
-                .addCriteria(new Criteria().orOperator(
-                        Criteria.where("startTime").lt(endTime).andOperator(Criteria.where("endTime").gt(startTime)),  // Overlaps with the requested range
-                        Criteria.where("startTime").lte(startTime).and("endTime").gte(endTime) // Existing booking completely covers requested range
-                ));
-
-        boolean isDoubleBooked = mongoTemplate.exists(query, Booking.class);
-        log.debug("Double booking check result for room ID {}: {}", roomId, isDoubleBooked);
-        return isDoubleBooked;
     }
 
 
@@ -131,7 +116,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public String updateBooking(String bookingId, BookingRequest bookingRequest) {
+    public BookingResponse updateBooking(String bookingId, BookingRequest bookingRequest) {
 
         log.info("Attempting to update booking with ID: {}", bookingId);
 
@@ -151,18 +136,18 @@ public class BookingServiceImpl implements BookingService {
         }
 
         log.info("Checking for overlapping bookings for room ID: {}", roomId);
-        if (isRoomDoubleBooked(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime())) {
+        if (!isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime(), bookingId)) {
             log.error("Room is already booked for the selected time range.");
             throw new RoomNotAvailableException("Room is already booked for the selected time range.");
         }
 
-        log.info("Checking room availability for booking request: {}", bookingRequest);
-        String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
-            log.error("Room with ID {} is not available between {} and {}", roomId, startTime, endTime);
-            throw new RuntimeException("Room is not available during the requested time.");
-        }
+//        log.info("Checking room availability for booking request: {}", bookingRequest);
+//        String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//        String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+//        if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
+//            log.error("Room with ID {} is not available between {} and {}", roomId, startTime, endTime);
+//            throw new RuntimeException("Room is not available during the requested time.");
+//        }
 
         Query query = new Query();
         query.addCriteria(Criteria.where("bookingId").is(bookingId));
@@ -170,7 +155,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (booking == null) {
             log.warn("No booking found with ID: {}", bookingId);
-            return bookingId;
+            throw new IllegalArgumentException("No booking found with ID " + bookingId);
         }
 
         booking.setUserId(bookingRequest.userId());
@@ -179,10 +164,17 @@ public class BookingServiceImpl implements BookingService {
         booking.setEndTime(bookingRequest.endTime());
         booking.setPurpose(bookingRequest.purpose());
 
-        String updatedBookingId = bookingRepository.save(booking).getBookingId();
-        log.info("Booking with ID: {} updated successfully", updatedBookingId);
+//        String updatedBookingId = bookingRepository.save(booking).getBookingId();
+//        log.info("Booking with ID: {} updated successfully", updatedBookingId);
+//
+//        return updatedBookingId;
 
-        return updatedBookingId;
+        // Save and return the updated booking
+        Booking updatedBooking = bookingRepository.save(booking);
+        log.info("Booking with ID: {} updated successfully", updatedBooking.getBookingId());
+
+        // Return the updated booking as a response
+        return mapToBookingResponse(updatedBooking);
 
     }
 
@@ -222,25 +214,31 @@ public class BookingServiceImpl implements BookingService {
 //        return count == 0;
 //    }
     @Override
-    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-        // Validate input times
+    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime, String currentBookingId) {
+        // Validate time range
         if (startTime.isAfter(endTime)) {
             log.warn("Invalid time range: startTime {} is after endTime {}", startTime, endTime);
             throw new IllegalArgumentException("Start time cannot be after end time");
         }
 
-        log.info("Checking for overlapping bookings for room ID: {} from {} to {}", roomId, startTime, endTime);
+        log.info("Checking room availability for room ID: {} from {} to {}", roomId, startTime, endTime);
 
         Query query = new Query();
         query.addCriteria(Criteria.where("roomId").is(roomId))
                 .addCriteria(new Criteria().orOperator(
-                        Criteria.where("startTime").lt(endTime).andOperator(Criteria.where("endTime").gt(startTime)), // Overlaps
-                        Criteria.where("startTime").gte(startTime).andOperator(Criteria.where("endTime").lte(endTime)) // Contains range
+                        Criteria.where("startTime").lt(endTime).and("endTime").gt(startTime), // Overlapping range
+                        Criteria.where("startTime").gte(startTime).and("endTime").lte(endTime) // Within the range
                 ));
+
+        // Exclude the current booking if applicable
+        if (currentBookingId != null) {
+            query.addCriteria(Criteria.where("bookingId").ne(currentBookingId));
+        }
 
         boolean isAvailable = !mongoTemplate.exists(query, Booking.class);
 
-        log.info("Room availability for ID {}: {}", roomId, isAvailable);
-        return isAvailable; // Room is available if no overlapping bookings are found
+        log.info("Room availability for ID {} with currentBookingId {}: {}", roomId, currentBookingId, isAvailable);
+        return isAvailable;
     }
+
 }

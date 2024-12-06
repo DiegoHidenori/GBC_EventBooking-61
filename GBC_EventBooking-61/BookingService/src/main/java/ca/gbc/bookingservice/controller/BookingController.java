@@ -54,13 +54,18 @@ public class BookingController {
             @PathVariable String bookingId,
             @RequestBody BookingRequest bookingRequest) {
 
-        String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Location", "/api/booking/" + updatedBookingId);
+//        String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("Location", "/api/booking/" + updatedBookingId);
+//
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+//                .headers(headers)
+//                .build();
+        // Update the booking and retrieve the updated details
+        BookingResponse updatedBooking = bookingService.updateBooking(bookingId, bookingRequest);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                .headers(headers)
-                .build();
+        // Return the updated booking with a 200 OK status
+        return ResponseEntity.ok(updatedBooking);
     }
 
     @GetMapping("/{bookingId}/exists")
@@ -86,7 +91,7 @@ public class BookingController {
         log.info("Received request to check room availability for room ID: {}, from {} to {}",
                 roomId, startTime, endTime);
 
-        boolean isAvailable = bookingService.isRoomAvailable(roomId, startTime, endTime);
+        boolean isAvailable = bookingService.isRoomAvailable(roomId, startTime, endTime, null);
         return ResponseEntity.ok(isAvailable);
     }
 }

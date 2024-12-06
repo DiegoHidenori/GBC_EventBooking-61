@@ -43,6 +43,13 @@ public class EventController {
         return eventService.getAllEvents();
     }
 
+    @GetMapping("/{eventId}/exists")
+    public ResponseEntity<Boolean> eventExists(@PathVariable String eventId) {
+        boolean exists = eventService.doesEventExist(eventId);
+        return ResponseEntity.ok(exists);
+    }
+
+
     @PutMapping("/{eventId}")
     public ResponseEntity<?> updateEvent(@PathVariable("eventId") String eventId,
                                         @RequestBody EventRequest eventRequest) {
