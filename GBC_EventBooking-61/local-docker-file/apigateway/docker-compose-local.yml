@@ -1,0 +1,36 @@
+# ---------------------------------------------------------------------------------------------------------------------
+# API GATEWAY
+
+# This command starts the containers in detached mode without rebuilding the images if they already exist
+# docker-compose -p api-gateway-containers -f docker-compose.yml up -d
+
+# This command rebuilds images even if they exist
+# RUN THIS IF CHANGES WERE ONLY DONE IN THIS FILE. UPDATES CONTAINERS WITH NEW CONFIGURATIONS AND KEEPS DATA/VOLUMES
+# docker-compose -p api-gateway-containers -f docker-compose.yml up -d --build
+
+# This command stops and removes containers and volumes
+# docker-compose -p api-gateway-containers -f docker-compose.yml down -v
+
+# ---------------------------------------------------------------------------------------------------------------------
+
+services:
+
+  api-gateway:
+    image: api-gateway
+    container_name: api-gateway
+    ports:
+      - "9000:9000"
+    build:
+      context: ./gateway    # Docker compose will consider files within this directory.
+      dockerfile: ./Dockerfile      # The exact path to the Dockerfile in the directory above.
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+#    depends_on:
+#      - keycloak
+#      - keycloak-postgres
+    networks:
+      - spring
+
+networks:
+  spring:
+    driver: bridge

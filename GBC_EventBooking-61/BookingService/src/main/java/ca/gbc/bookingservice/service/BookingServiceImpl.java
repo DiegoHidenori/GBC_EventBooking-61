@@ -10,7 +10,6 @@ import ca.gbc.bookingservice.model.Booking;
 import ca.gbc.bookingservice.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -54,12 +53,6 @@ public class BookingServiceImpl implements BookingService {
             log.error("User with ID {} does not exist", userId);
             throw new UserNotFoundException("User with ID " + userId + " does not exist");
         }
-
-//        log.info("Checking for overlapping bookings for room ID: {}", roomId);
-//        if (isRoomAvailable(bookingRequest.roomId(), bookingRequest.startTime(), bookingRequest.endTime(), null)) {
-//            log.error("Room is already booked for the selected time range.");
-//            throw new RoomNotAvailableException("Room is already booked for the selected time range.");
-//        }
 
         log.info("Checking room availability for booking request: {}", bookingRequest);
         String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -141,14 +134,6 @@ public class BookingServiceImpl implements BookingService {
             throw new RoomNotAvailableException("Room is already booked for the selected time range.");
         }
 
-//        log.info("Checking room availability for booking request: {}", bookingRequest);
-//        String startTime = bookingRequest.startTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        String endTime = bookingRequest.endTime().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        if (!roomClient.isRoomAvailable(roomId, startTime, endTime)) {
-//            log.error("Room with ID {} is not available between {} and {}", roomId, startTime, endTime);
-//            throw new RuntimeException("Room is not available during the requested time.");
-//        }
-
         Query query = new Query();
         query.addCriteria(Criteria.where("bookingId").is(bookingId));
         Booking booking = mongoTemplate.findOne(query, Booking.class);
@@ -164,16 +149,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setEndTime(bookingRequest.endTime());
         booking.setPurpose(bookingRequest.purpose());
 
-//        String updatedBookingId = bookingRepository.save(booking).getBookingId();
-//        log.info("Booking with ID: {} updated successfully", updatedBookingId);
-//
-//        return updatedBookingId;
-
-        // Save and return the updated booking
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Booking with ID: {} updated successfully", updatedBooking.getBookingId());
 
-        // Return the updated booking as a response
         return mapToBookingResponse(updatedBooking);
 
     }
@@ -193,29 +171,9 @@ public class BookingServiceImpl implements BookingService {
 
     }
 
-//    @Override
-//    public boolean checkRoomAvailability(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-//        String formattedStartTime = startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        String formattedEndTime = endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-//        return roomClient.isRoomAvailable(roomId, formattedStartTime, formattedEndTime);
-//    }
-
-//    @Override
-//    public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime) {
-//        Query query = new Query(Criteria.where("roomId").is(roomId)
-//                .orOperator(
-//                        Criteria.where("startTime").lt(endTime).and("endTime").gt(startTime),
-//                        Criteria.where("startTime").gte(startTime).and("startTime").lt(endTime)
-//                )
-//        );
-//        long count = mongoTemplate.count(query, Booking.class);
-//
-//        // Room is available if no bookings overlap
-//        return count == 0;
-//    }
     @Override
     public boolean isRoomAvailable(Long roomId, LocalDateTime startTime, LocalDateTime endTime, String currentBookingId) {
-        // Validate time range
+
         if (startTime.isAfter(endTime)) {
             log.warn("Invalid time range: startTime {} is after endTime {}", startTime, endTime);
             throw new IllegalArgumentException("Start time cannot be after end time");
@@ -230,7 +188,6 @@ public class BookingServiceImpl implements BookingService {
                         Criteria.where("startTime").gte(startTime).and("endTime").lte(endTime) // Within the range
                 ));
 
-        // Exclude the current booking if applicable
         if (currentBookingId != null) {
             query.addCriteria(Criteria.where("bookingId").ne(currentBookingId));
         }

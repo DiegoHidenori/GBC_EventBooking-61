@@ -7,17 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
-// Extension of @Controller but for JSON?
 @Slf4j
 @RestController
 @RequestMapping("/api/booking")
@@ -54,17 +50,7 @@ public class BookingController {
             @PathVariable String bookingId,
             @RequestBody BookingRequest bookingRequest) {
 
-//        String updatedBookingId = bookingService.updateBooking(bookingId, bookingRequest);
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Location", "/api/booking/" + updatedBookingId);
-//
-//        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-//                .headers(headers)
-//                .build();
-        // Update the booking and retrieve the updated details
         BookingResponse updatedBooking = bookingService.updateBooking(bookingId, bookingRequest);
-
-        // Return the updated booking with a 200 OK status
         return ResponseEntity.ok(updatedBooking);
     }
 
