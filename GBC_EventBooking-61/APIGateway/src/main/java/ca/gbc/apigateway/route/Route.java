@@ -37,7 +37,7 @@ public class Route {
 
         log.info("Initializing approval service route with URL: {}", approvalServiceUrl);
         return GatewayRouterFunctions.route("approval-service")
-                .route(RequestPredicates.path("/api/approval"), request -> {
+                .route(RequestPredicates.path("/api/approval/**"), request -> {
 
                     log.info("Request received for approval-service: {}", request.uri());
 
@@ -71,7 +71,7 @@ public class Route {
 
         log.info("Initializing event service route with URL: {}", eventServiceUrl);
         return GatewayRouterFunctions.route("event-service")
-                .route(RequestPredicates.path("/api/event"), request -> {
+                .route(RequestPredicates.path("/api/event/**"), request -> {
 
                     log.info("Request received for event-service: {}", request.uri());
 
@@ -105,7 +105,7 @@ public class Route {
 
         log.info("Initializing booking service route with URL: {}", bookingServiceUrl);
         return GatewayRouterFunctions.route("booking-service")
-                .route(RequestPredicates.path("/api/booking"), request -> {
+                .route(RequestPredicates.path("/api/booking/**"), request -> {
 
                     log.info("Request received for booking-service: {}", request.uri());
 
@@ -139,7 +139,7 @@ public class Route {
 
         log.info("Initializing room service route with URL: {}", roomServiceUrl);
         return GatewayRouterFunctions.route("room-service")
-                .route(RequestPredicates.path("/api/room"), request -> {
+                .route(RequestPredicates.path("/api/room/**"), request -> {
 
                     log.info("Request received for room-service: {}", request.uri());
 
@@ -173,7 +173,7 @@ public class Route {
 
         log.info("Initializing user service route with URL: {}", userServiceUrl);
         return GatewayRouterFunctions.route("user-service")
-                .route(RequestPredicates.path("/api/user"), request -> {
+                .route(RequestPredicates.path("/api/user/**"), request -> {
 
                     log.info("Request received for user-service: {}", request.uri());
 
