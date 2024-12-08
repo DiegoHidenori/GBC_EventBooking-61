@@ -10,6 +10,9 @@ public record BookingRequest(
         Long roomId,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        String purpose
+        String purpose,
+        UserDetails userDetails
 
-) {}
+) {
+    public record UserDetails(String email, String firstName, String lastName) {}
+}

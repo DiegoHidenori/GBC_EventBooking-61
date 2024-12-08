@@ -47,7 +47,7 @@ public class Route {
                         return response;
                     } catch (Exception e) {
                         log.error("Error occurred while routing to: {}", e.getMessage(), e);
-                        return ServerResponse.status(500).body("Error occurred when routing to product-service");
+                        return ServerResponse.status(500).body("Error occurred when routing to approval-service");
                     }
 
                 })

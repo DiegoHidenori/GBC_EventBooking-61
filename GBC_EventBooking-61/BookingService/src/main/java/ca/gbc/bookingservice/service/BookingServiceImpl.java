@@ -4,19 +4,24 @@ import ca.gbc.bookingservice.client.RoomClient;
 import ca.gbc.bookingservice.client.UserClient;
 import ca.gbc.bookingservice.dto.BookingRequest;
 import ca.gbc.bookingservice.dto.BookingResponse;
+import ca.gbc.bookingservice.event.BookingPlacedEvent;
+import ca.gbc.bookingservice.exception.FallbackException;
 import ca.gbc.bookingservice.exception.RoomNotAvailableException;
 import ca.gbc.bookingservice.exception.UserNotFoundException;
 import ca.gbc.bookingservice.model.Booking;
 import ca.gbc.bookingservice.repository.BookingRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Proxy;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -32,6 +37,7 @@ public class BookingServiceImpl implements BookingService {
     private final RestTemplate restTemplate;
     private final UserClient userClient;
     private final RoomClient roomClient;
+    private final KafkaTemplate<String, BookingPlacedEvent> kafkaTemplate;
 
 
     @Override
@@ -75,6 +81,17 @@ public class BookingServiceImpl implements BookingService {
         // Persist the product, used the @RequiredArgsConstructor to inject the BookingRepository
         log.info("Saving booking");
         bookingRepository.save(booking);
+
+        BookingPlacedEvent bookingPlacedEvent = new BookingPlacedEvent();
+        bookingPlacedEvent.setBookingNumber(booking.getBookingId());
+        bookingPlacedEvent.setEmail(bookingRequest.userDetails().email());
+        bookingPlacedEvent.setFirstName(bookingRequest.userDetails().firstName());
+        bookingPlacedEvent.setLastName(bookingRequest.userDetails().lastName());
+
+        log.info("Start - Sending BookingPlacedEvent {} to Kafka topic booking-placed", bookingPlacedEvent);
+        kafkaTemplate.send("booking-placed", bookingPlacedEvent);
+        log.info("End - Sent BookingPlacedEvent {} to Kafka topic booking-placed", bookingPlacedEvent);
+        log.info("Schema: {}", bookingPlacedEvent.getSchema());
 
         log.info("Booking created successfully with ID: {}", booking.getBookingId());
         return mapToBookingResponse(booking);

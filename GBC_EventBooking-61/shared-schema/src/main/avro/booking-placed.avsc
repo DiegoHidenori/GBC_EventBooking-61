@@ -1,0 +1,11 @@
+{
+  "type": "record",
+  "name": "BookingPlacedEvent",
+  "namespace": "ca.gbc.bookingservice.event",
+  "fields": [
+    {"name": "bookingNumber", "type": "string" },
+    {"name": "email", "type": "string" },
+    {"name": "firstName", "type": "string" },
+    {"name": "lastName", "type": "string" }
+  ]
+}

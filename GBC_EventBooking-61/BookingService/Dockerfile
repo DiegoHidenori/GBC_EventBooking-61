@@ -9,7 +9,8 @@ COPY --chown=gradle:gradle . /home/gradle/src
 
 WORKDIR /home/gradle/src
 
-RUN gradle build -x test
+# RUN gradle build -x test
+RUN gradle :shared-schema:build :BookingService:build -x test
 
 #------------------
 # PACKAGE STAGE
